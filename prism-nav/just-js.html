@@ -11,47 +11,81 @@
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 
 <script>
+// MAIN
+
+// standard global variables
 var scene, camera, renderer;
 
 initialize();
-		
+
+// FUNCTIONS 		
 function initialize() 
 {
+	// SCENE
 	scene = new THREE.Scene();
-	var container = document.getElementById('ThreeJS');
 
 	// CAMERA
 	var FOV = 45; 
 	var ASPECT_RATIO = window.innerWidth / window.innerHeight;
 	var NEAR_PLANE = 1;
-	var FAR_PLANE  = 100;
+	var FAR_PLANE  = 10000;
 	camera = new THREE.PerspectiveCamera( FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE );
 	scene.add(camera);
-	camera.position.set(0,150,400);
-	camera.lookAt(scene.position);
+	camera.position.set(100,0,0);
+	camera.lookAt(scene.position);	
 
 	// RENDERER
 	if ( Detector.webgl )
 		renderer = new THREE.WebGLRenderer( {antialias:true} );
 	else
 		renderer = new THREE.CanvasRenderer(); 
-
-	//renderer.setSize($(container).width(), $(container).height());
-	renderer.setSize(window.innerWidth / window.innerHeight);
+	
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	
+	var container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
-
+	
 	// LIGHT
-	var light = new THREE.PointLight(0xffffff); //can change this to a more festive color later
-	light.position.set(100,250,100);
+	var light = new THREE.PointLight(0xffffff);
+	light.position.set(400,0,0);
 	scene.add(light);
 
-	// parameters: radius, detail
-	var geometry = new THREE.TetrahedronGeometry(500);
-	var material = new THREE.MeshLambertMaterial({ color: 0x000092 }); //way bright pink
-	var mesh     = new THREE.Mesh( geometry, material );
-	mesh.position.set(0,0,0);
-	scene.add(mesh);
+	// parameters: radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight,
+	// var geometry2 = new THREE.TetrahedronGeometry( 25 );
+	// var material2 = new THREE.MeshLambertMaterial( { color: 0xFF0092 } );
+	// var mesh2     = new THREE.Mesh( geometry2, material2 );
+	// mesh2.position.set(0,0,0);
+	// scene.add(mesh2);
+	var g = new THREE.Geometry();
+	
+	g.vertices.push( new THREE.Vector3( 0,0,-1 ) ); //vertex 0
+	g.vertices.push( new THREE.Vector3( 1,0,0 ) );	//vertex 1
+	g.vertices.push( new THREE.Vector3( 0,1,0 ) );	//vertex 2
+	g.vertices.push( new THREE.Vector3( -1,0,0 ) );	//vertex 3
+	g.vertices.push( new THREE.Vector3( 0,0,1 ) );	//vertex 4
+	g.vertices.push( new THREE.Vector3( 0,-1,0 ) );	//vertex 5
+	
+	g.faces.push( new THREE.Face3( 4,1,2 ) );
+	g.faces.push( new THREE.Face3( 3,4,2 ) );
+	g.faces.push( new THREE.Face3( 0,3,2 ) );
+	g.faces.push( new THREE.Face3( 1,0,2 ) );
+	g.faces.push( new THREE.Face3( 1,4,5 ) );
+	g.faces.push( new THREE.Face3( 4,3,5 ) );
+	g.faces.push( new THREE.Face3( 3,0,5 ) );
+	g.faces.push( new THREE.Face3( 0,1,5 ) );
+	
+	g.computeVertexNormals(); //will hopefully work by next time!
+	g.computeFaceNormals();
+	
+	//fill UV coords!
+	g.faceVertexUvs.push( new THREE.Vector2(0,0) );
+	g.faceVertexUvs.push( new THREE.Vector2(0,1) );
+	g.faceVertexUvs.push( new THREE.Vector2(1,0) );
 
+	var m = new THREE.MeshBasicMaterial( {color:0xB6FF00} );
+	var mesh = new THREE.Mesh(g,m);
+	scene.add(mesh);
+	
 	renderScene();
 }
 
@@ -61,6 +95,7 @@ function renderScene()
     requestAnimationFrame( renderScene );
 	renderer.render( scene, camera );
 }
+
 </script>
 </body>
 </html>
